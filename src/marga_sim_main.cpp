@@ -36,15 +36,13 @@ hardware *hw;
 iface *ifa;
 
 int main(int argc, char *argv[]) {
-	std::cout << "MaRCoS server + MARGA sim model, " << __DATE__ << " " << __TIME__ << std::endl;
-
 	// Global version string creation
 	std::stringstream sv;
 	sv << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_DEBUG;
 	SERVER_VERSION_UINT = ((VERSION_MAJOR << 16) & 0xff0000) | ((VERSION_MINOR << 8) & 0xff00) | (VERSION_DEBUG & 0xff);
 	SERVER_VERSION_STR = sv.str();
 
-	std::cout << "Server version " << SERVER_VERSION_STR << std::endl;
+	std::cout << "MaRCoS server + MARGA sim model, version " << SERVER_VERSION_STR << std::endl;
 
 	mm = new marga_model(argc, argv);
 	hw = new hardware();

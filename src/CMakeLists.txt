@@ -12,6 +12,7 @@
 # This will build the marga_sim binary.
 
 cmake_minimum_required(VERSION 3.12)
+cmake_policy(SET CMP0144 NEW)
 project(marga_sim)
 
 find_package(verilator HINTS $ENV{VERILATOR_ROOT} ${VERILATOR_ROOT})
@@ -19,12 +20,12 @@ if (NOT verilator_FOUND)
   message(FATAL_ERROR "Verilator was not found. Either install it, or set the VERILATOR_ROOT environment variable")
 endif()
 
-set (CMAKE_C_FLAGS "-O3 -g -Wall -std=c11")
-set (CMAKE_CXX_FLAGS "-O3 -g -Wall -std=c++17")
+set (CMAKE_C_FLAGS "-O3 -g -Wall -Werror -std=c11")
+set (CMAKE_CXX_FLAGS "-O3 -g -Wall -Werror -std=c++17")
 
 # # For debugging only
 # set (CMAKE_C_FLAGS "-O0 -g -Wall -std=c11")
-# set (CMAKE_CXX_FLAGS "-O0 -g -Wall -std=c++17")
+# set (CMAKE_CXX_FLAGS "-O0 -g -Wall -std=c++17")œ
 
 set(SERVER_PATH "../../marcos_server/src")
 set(SERVER_SRC	${SERVER_PATH}/hardware.cpp
@@ -40,5 +41,7 @@ target_include_directories(marga_sim PRIVATE ${SERVER_PATH} "./")
 
 verilate(marga_sim
 	INCLUDE_DIRS "../hdl"
-	VERILATOR_ARGS -Wall -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-PINMISSING --cc -O3 --threads 4 --trace-fst --trace-depth 4
+	VERILATOR_ARGS -Wall -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-PINMISSING -Wno-PROCASSINIT --cc -O3 --threads 4 --trace-fst --trace-depth 4
+	OPT_SLOW -Wno-bitwise-instead-of-logical -Wno-unused-variable
+	OPT_FAST -Wno-bitwise-instead-of-logical -Wno-unused-variable
 	SOURCES ../hdl/marga_model.sv)

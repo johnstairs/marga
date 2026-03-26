@@ -42,18 +42,21 @@ struct marga_csv {
 	void wr_header() {
 		// full header
 		fprintf(f, "# clock cycles, tx0_i, tx0_q, tx1_i, tx1_q,"
-		        " fhdo_vx, fhdo_vy, fhdo_vz, fhdo_vz2, ocra1_vx, ocra1_vy, ocra1_vz, ocra1_vz2,"
-		        " rx0_rate, rx1_rate, rx0_rate_valid, rx1_rate_valid, rx0_rst_n, rx1_rst_n, rx0_en, rx1_en,"
-		        " tx_gate, rx_gate, trig_out, leds, csv_version_%d.%d\n", CSV_VERSION_MAJOR, CSV_VERSION_MINOR);
+		           " fhdo_vx, fhdo_vy, fhdo_vz, fhdo_vz2, ocra1_vx, ocra1_vy, ocra1_vz, ocra1_vz2,"
+		           " rx0_rate, rx1_rate, rx0_rate_valid, rx1_rate_valid, rx0_rst_n, rx1_rst_n, rx0_en, rx1_en,"
+		           " tx_gate, rx_gate, trig_out, leds, csv_version_%d.%d\n",
+		        CSV_VERSION_MAJOR, CSV_VERSION_MINOR);
 	}
 
 	bool wr_update(Vmarga_model *fm) {
 		// Long and ugly - I'm sorry!
 		bool diff_tx = false, diff_grad = false, diff_rx = false, diff_gpio = false;
 
-		if (false and main_time/10 == 211845) { // debugging only: breakpoint at particular time
+		if (false and main_time / 10 == 211845) { // debugging only: breakpoint at particular time
 			printf("x\n");
 		}
+
+		// clang-format off
 
 		if (fm->tx0_i != tx0_i) { tx0_i = fm->tx0_i; diff_tx = true; }
 		if (fm->tx0_q != tx0_q) { tx0_q = fm->tx0_q; diff_tx = true; }
@@ -84,20 +87,22 @@ struct marga_csv {
 		if (fm->trig_o != trig) { trig = fm->trig_o; diff_gpio = true; }
 		if (fm->leds_o != leds) { leds = fm->leds_o; diff_gpio = true; }
 
+		// clang-format on
+
 		bool diff = diff_tx or diff_grad or diff_rx or diff_gpio;
 		if (diff) {
 			// occasionally print abridged column names for easy reading
 			if (_line++ % _LINE_INTERVAL == 0) {
-				fprintf(f, _colnames.c_str());
+				fputs(_colnames.c_str(), f);
 			}
 
 			fprintf(f, "%8lu, %5d, %5d, %5d, %5d, "
-			        "%5u, %5u, %5u, %5u, "
-			        "%6d, %6d, %6d, %6d,"
-			        "%5u,%5u, %1d, %1d, "
-			        "%1d, %1d, %1d, %1d, "
-			        "%1d, %1d, %1d, %3u\n",
-			        main_time/10, tx0_i, tx0_q, tx1_i, tx1_q,
+			           "%5u, %5u, %5u, %5u, "
+			           "%6d, %6d, %6d, %6d,"
+			           "%5u,%5u, %1d, %1d, "
+			           "%1d, %1d, %1d, %1d, "
+			           "%1d, %1d, %1d, %3u\n",
+			        main_time / 10, tx0_i, tx0_q, tx1_i, tx1_q,
 			        fhdo_voutx, fhdo_vouty, fhdo_voutz, fhdo_voutz2,
 			        ocra1_voutx, ocra1_vouty, ocra1_voutz, ocra1_voutz2,
 			        rx0_rate, rx1_rate, rx0_rate_valid, rx1_rate_valid,
@@ -252,7 +257,8 @@ uint32_t marga_model::rd32(uint32_t addr) {
 
 	vmm->s0_axi_arvalid = 0;
 	vmm->s0_axi_rready = 1;
-	tick(); tick(); // 1 full clock cycle
+	tick();
+	tick(); // 1 full clock cycle
 	vmm->s0_axi_rready = 0;
 
 	return data;
@@ -270,7 +276,7 @@ void marga_model::wr32(uint32_t addr, uint32_t data) {
 
 	// wait for marga to be ready
 	unsigned write_ticks = 0;
-	while (! (vmm->s0_axi_awready and vmm->s0_axi_wready) ) {
+	while (!(vmm->s0_axi_awready and vmm->s0_axi_wready)) {
 		tick();
 		write_ticks++;
 		if (write_ticks > WRITE_TICKS_SLOW) {
@@ -281,7 +287,8 @@ void marga_model::wr32(uint32_t addr, uint32_t data) {
 	}
 
 	// end bus transaction
-	tick();tick();
+	tick();
+	tick();
 	vmm->s0_axi_awvalid = 0;
 	vmm->s0_axi_wvalid = 0;
 
