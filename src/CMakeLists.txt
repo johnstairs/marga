@@ -32,6 +32,8 @@ set(SERVER_SRC	${SERVER_PATH}/hardware.cpp
 		${SERVER_PATH}/iface.cpp
 		${SERVER_PATH}/mpack/mpack.c)
 
+set(VERILATOR_THREADS "4" CACHE STRING "Number of Verilator simulation threads")
+
 add_compile_definitions(VERILATOR_BUILD)
 
 add_executable(marga_sim marga_sim_main.cpp marga_model.cpp ${SERVER_SRC})
@@ -41,7 +43,7 @@ target_include_directories(marga_sim PRIVATE ${SERVER_PATH} "./")
 
 verilate(marga_sim
 	INCLUDE_DIRS "../hdl"
-	VERILATOR_ARGS -Wall -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-PINMISSING -Wno-PROCASSINIT --cc -O3 --threads 4 --trace-fst --trace-depth 4
-	OPT_SLOW -Wno-bitwise-instead-of-logical -Wno-unused-variable
-	OPT_FAST -Wno-bitwise-instead-of-logical -Wno-unused-variable
+	VERILATOR_ARGS -Wall -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-PINMISSING -Wno-PROCASSINIT --cc -O3 --threads ${VERILATOR_THREADS} --trace-fst --trace-depth 4
+	OPT_SLOW -Wno-bitwise-instead-of-logical -Wno-unused-variable -Wno-unused-but-set-variable
+	OPT_FAST -Wno-bitwise-instead-of-logical -Wno-unused-variable -Wno-unused-but-set-variable
 	SOURCES ../hdl/marga_model.sv)
